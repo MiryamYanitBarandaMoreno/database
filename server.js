@@ -14,7 +14,7 @@ class Server {
 
         this.middlewares();                            //Invocaciòn de los middlewares
 
-        this.routes;                                    //Invocaicon de los routes
+        this.routes();                                    //Invocaicon de los routes
     }
 
 
