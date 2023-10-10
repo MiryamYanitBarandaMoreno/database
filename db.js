@@ -1,21 +1,14 @@
-const mysql = require('mysql');
+const mysql = require('mariadb');
 
-const connection = {
+const config= {
     host: 'localhost',
     port: 3306,
     database: 'backend',
     user: 'root',
-    password: ''
+    password: '',
+    connectionLimit: 10
 };
 
-const conn = mysql.createConnection(connection);
+const pool = mysql.createPool(config);
 
-conn.connect((err)=>{
-    if (err){
-        console.log("Error occurred while connecting to MySQL database.")
-    }else{
-        console.log("Connecting with MySQL database created successfully.")
-    }
-})
-
-module.exports = conn;
+module.exports = pool;
