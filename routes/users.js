@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const {listUsers, listUserByID} = require ('../controllers/users')
+const {listUsers, listUserByID, addUser} = require ('../controllers/users')
 
 const router = Router();
 
@@ -8,7 +8,7 @@ router.get('/',listUsers);
 //se coloca dos puntos porque id es un valor variable
 router.get('/:id',listUserByID);
 //router.post('/',listUsers);
-//router.put('/',listUsers);
+router.put('/',addUser);
 //router.patch('/',listUsers);
 //router.delete('/',listUsers);
 
