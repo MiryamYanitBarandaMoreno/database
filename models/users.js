@@ -35,6 +35,33 @@ const usersModel = {
     WHERE
             email = ?
     `,
+
+    getUserInfoByID:
+    `
+    SELECT 
+        username, 
+        email, 
+        password, 
+        name, 
+        lastname,
+        phone_number,
+        role_id,
+        is_active
+
+    FROM Users
+    WHERE id = ?
+    `,
+
+    updateByID: `
+    UPDATE Users 
+        SET username=?, 
+        email=?, password=?, 
+        name=?, lastname=?, 
+        phone_number=?, 
+        role_id=?, 
+        is_active=? 
+    WHERE id=?`,
+    
 }
 
 module.exports = usersModel;
