@@ -61,6 +61,15 @@ const usersModel = {
         role_id=?, 
         is_active=? 
     WHERE id=?`,
+
+    deleteRow:`
+        UPDATE 
+            Users
+        SET
+            is_active = 0
+        WHERE
+            id = ?
+    `,
     
 }
 

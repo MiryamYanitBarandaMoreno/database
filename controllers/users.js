@@ -2,6 +2,7 @@ const { request, response } = require('express');
 const usersModel = require('../models/users')
 const pool = require('../db');
 
+//ENDPOINT READ
 //endpoint---------------------------------------------------------------------------------------
 const listUsers = async (req = request, res = response) => {
     let conn;
@@ -57,8 +58,8 @@ const listUserByID = async (req = request, res = response) => {
     }
 }
 
-//se utiliza el metodo body para recibir parametros----------------------------------------------
- /**
+//ENDPOINT CREATE---------------------------------------------------------------------------------
+ /**se utiliza el metodo body para recibir parametros
      *  username: 'admin'
         email: 'admin@example.com'
         password: '123'
@@ -133,7 +134,8 @@ try{
 }
 
 /*-----------------------------------------------------------------------------------------------
- * ENDPOINT ACTIVIDAD CLASE 17 10 23
+ENDPOINT UPDATE 
+ENDPOINT ACTIVIDAD CLASE 17 10 23
  * validar que se mande la info necesaria 
  *      puede modificar toda la informacion
  *      o solo atributos especificos
@@ -175,12 +177,12 @@ const ModifyUserByID = async (req = request, res = response)=>{
             conn = await pool.getConnection();//Conexion a la bd
     
             // Realiza una consulta para obtener el usuario existente con el ID especificado
-            const [existingUser] = await conn.query(
+            const [UserExists] = await conn.query(
                 usersModel.getByID, 
                 [id],
                 (err)=>{if(err)throw err;});
             // Verifica si el usuario existe en la base de datos y responde con un error 404 si no se encuentra
-            if (!existingUser) {
+            if (!UserExists) {
                 res.status(404).json({ msg: `User with id ${id} not found` });
                 return;
             }
@@ -205,7 +207,7 @@ const ModifyUserByID = async (req = request, res = response)=>{
                 (err)=>{if(err)throw err;}
             );
             if (emailUser){
-                res.status(409).json({msg: `User with username ${email} already exists`});
+                res.status(409).json({msg: `User with email ${email} already exists`});
                 return;
             }
     
@@ -232,4 +234,46 @@ const ModifyUserByID = async (req = request, res = response)=>{
         }
 }    
 
-module.exports = { listUsers, listUserByID, addUser, ModifyUserByID };
+/**
+ * ENDPOINT DELETE
+ */
+const deleteUser = async (req= request, res = response)=>{
+let conn;
+const {id} = req.params;
+
+try{
+    conn = await pool.getConnection();
+
+    const [userExists] = await conn.query(
+        usersModel.getByID,
+        [id],
+        (err)=> {throw err;}
+    )
+    
+    if (!userExists || userExists.is_active===0) {
+        res.status(404).json({msg: 'User not found'})
+        return;
+    }
+    
+    const userDeleted = await conn.query(
+        usersModel.deleteRow,
+        [id],
+        (err) => {if (err) throw err;}
+    )
+    
+    if(userDeleted.affectedRows === 0){
+        throw new Error ({message: 'Failed to delete user'})
+    };
+
+    res.json({msg: 'User deleted succesfully'});
+
+}catch (error){
+    console.log(error)
+    res.status(500).json(error);
+}finally{
+    if (conn) conn.end();
+}
+}
+
+
+module.exports = { listUsers, listUserByID, addUser, ModifyUserByID, deleteUser};
