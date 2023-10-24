@@ -12,10 +12,10 @@ router.get('/:id',listUserByID);
 //router.post('/',listUsers);
 router.put('/',addUser);
 
-router.patch('/:id',ModifyUserByID);
+//router.patch('/:id',ModifyUserByID);
 
 //ruta para Endpoint hecho en clase
-//router.patch('/:id',updateUser);
+router.patch('/:id',updateUser);
 
 router.delete('/:id',deleteUser);
 

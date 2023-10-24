@@ -320,13 +320,24 @@ const updateUser =async (req =request, res= response) =>{
             return;
         }
 
-        if(username===userExists.username){
-            res.status(409).json({msg:'Username already exists'});
+    //---------------------
+        const [usernameUser] = await conn.query(
+            usersModel.getByUserName,
+            [username],
+            (err)=>{if(err)throw err;}
+        );
+        if (usernameUser){
+            res.status(409).json({msg: `User with username ${username} already exists`});
             return;
         }
-
-        if(email===userExists.email){
-            res.status(409).json({msg:'Username already exists'});
+    //---------------------
+        const [emailUser] = await conn.query(
+            usersModel.getByEmail,
+            [email],
+            (err)=>{if(err)throw err;}
+        );
+        if (emailUser){
+            res.status(409).json({msg: `User with username ${email} already exists`});
             return;
         }
 
@@ -346,7 +357,7 @@ const updateUser =async (req =request, res= response) =>{
                 };
             })
 
-            const [userUpdated] = conn.query(
+            const userUpdated = conn.query(
                 usersModel.updateByID, 
                 [...user, id],
                 (err) => {
