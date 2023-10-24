@@ -275,5 +275,96 @@ try{
 }
 }
 
+/**
+ * ENDPOINT UPDATE / HECHO EN CLASE
+ */
+const updateUser =async (req =request, res= response) =>{
+    const {id} = req.params;// Captura el ID de los parámetros en la URL
+    const {
+            username, 
+            email, 
+            password, 
+            name, 
+            lastname,
+            phone_number,
+            role_id,
+            is_active
+    } =req.body; //Extrae los datos
 
-module.exports = { listUsers, listUserByID, addUser, ModifyUserByID, deleteUser};
+    let user = [
+        username, 
+        email, 
+        password, 
+        name, 
+        lastname,
+        phone_number,
+        role_id,
+        is_active
+    ];
+    
+
+    let conn;
+
+
+    try{
+        conn = await pool.getConnection();
+
+        const [userExists] = await conn.query(
+            usersModel.getByID,
+            [id],
+            (err)=> {throw err;}
+        )
+        
+        if (!userExists || userExists.is_active===0) {
+            res.status(404).json({msg: 'User not found'})
+            return;
+        }
+
+        if(username===userExists.username){
+            res.status(409).json({msg:'Username already exists'});
+            return;
+        }
+
+        if(email===userExists.email){
+            res.status(409).json({msg:'Username already exists'});
+            return;
+        }
+
+        let oldUser = [
+            userExists.username, 
+            userExists.email, 
+            userExists.password, 
+            userExists.name, 
+            userExists.lastname,
+            userExists.phone_number,
+            userExists.role_id,
+            userExists.is_active]
+        
+            user.forEach((userData, index)=>{
+                if (!userData) {
+                    user[index] = oldUser[index]
+                };
+            })
+
+            const [userUpdated] = conn.query(
+                usersModel.updateByID, 
+                [...user, id],
+                (err) => {
+                    throw err;
+                }
+                )
+            if (userUpdated.affectedRows===0){
+                throw new Error('User not updated');
+            }
+            res.json({msg:'Userd updated successfully'});
+    }catch(error){
+        console.log(error);
+        res.status(500).json(error);
+        } finally {
+            if (conn) conn.end();
+        }
+}
+
+
+
+module.exports = { listUsers, listUserByID, addUser, ModifyUserByID, deleteUser, updateUser};

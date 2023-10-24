@@ -36,22 +36,6 @@ const usersModel = {
             email = ?
     `,
 
-    getUserInfoByID:
-    `
-    SELECT 
-        username, 
-        email, 
-        password, 
-        name, 
-        lastname,
-        phone_number,
-        role_id,
-        is_active
-
-    FROM Users
-    WHERE id = ?
-    `,
-
     updateByID: `
     UPDATE Users 
         SET username=?, 
