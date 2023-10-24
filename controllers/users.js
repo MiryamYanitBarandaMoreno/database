@@ -1,4 +1,5 @@
 const { request, response } = require('express');
+const bcrypt = require('bcrypt');
 const usersModel = require('../models/users')
 const pool = require('../db');
 
@@ -87,7 +88,18 @@ if (!username || !email || !password || !name || !lastname || !role_id){
     return;
 }
 
-const user = [username, email, password, name, lastname, phone_number, role_id, is_active];
+const saltRounds = 10;
+const passwordHash = await bcrypt.hash(password, saltRounds);
+
+const user = [
+    username, 
+    email, 
+    passwordHash, 
+    name, 
+    lastname, 
+    phone_number, 
+    role_id, 
+    is_active];
    
 let conn ;
 
