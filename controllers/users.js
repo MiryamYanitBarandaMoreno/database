@@ -164,6 +164,11 @@ ENDPOINT ACTIVIDAD CLASE 17 10 23
 const ModifyUserByID = async (req = request, res = response)=>{
     //---------------------------- recibe los datos -----------------------------
         const {id} = req.params;// Captura el ID de los parámetros en la URL
+
+        if (isNaN(id)){
+            res.status(404).json({msg: 'Invalid ID'});
+            return;
+        }
         console.log(`Received PATCH request for user with ID: ${id}`);//ver el ID en consola
 
         const {
@@ -253,6 +258,11 @@ const deleteUser = async (req= request, res = response)=>{
 let conn;
 const {id} = req.params;
 
+if (isNaN(id)){
+    res.status(404).json({msg: 'Invalid ID'});
+    return;
+}
+
 try{
     conn = await pool.getConnection();
 
@@ -292,6 +302,12 @@ try{
  */
 const updateUser =async (req =request, res= response) =>{
     const {id} = req.params;// Captura el ID de los parámetros en la URL
+
+    if (isNaN(id)){
+        res.status(404).json({msg: 'Invalid ID'});
+        return;
+    }
+
     const {
             username, 
             email, 
@@ -388,6 +404,43 @@ const updateUser =async (req =request, res= response) =>{
         }
 }
 
+/**
+ * Endpoint recuperar la informacion de un usuario mediante el password y el username 
+ */
+const signInUser = async (req = request, res = response)=>{
+    const {username, password} = req.body;
 
+    let conn;
+    try{
+        conn  = await pool.getConnection();
 
-module.exports = { listUsers, listUserByID, addUser, ModifyUserByID, deleteUser, updateUser};
+        const [user] = await conn.query(
+            usersModel.getByUserName,
+            [username],
+            (err) => {throw err;}
+        ) 
+        if(!user || user.is_active===0){
+            res.status(404).json({msg: "Wrong username or password"});
+            return;
+        }
+        
+        const passwordOk = await bcrypt.compare(password, user.password);
+        if(!passwordOk){
+            res.status(404).json({msg: "Wrong username or password"});
+            return;
+        }
+
+        delete user.password;
+        delete user.created_at;
+        delete user.update_at;
+
+        res.json(user);
+    }catch(error){
+        console.log(error);
+        res.status(500).json(error);
+    }finally{
+        if(conn) conn.end();
+    }
+}
+
+module.exports = { listUsers, listUserByID, addUser, ModifyUserByID, deleteUser, updateUser, signInUser};
