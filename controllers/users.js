@@ -319,10 +319,16 @@ const updateUser =async (req =request, res= response) =>{
             is_active
     } =req.body; //Extrae los datos
 
+    let passwordHash
+    if (password){
+        const saltRounds = 10;
+        passwordHash =await bcrypt.hash(password, saltRounds);
+    }
+
     let user = [
         username, 
         email, 
-        password, 
+        passwordHash, 
         name, 
         lastname,
         phone_number,
